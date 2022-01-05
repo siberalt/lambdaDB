@@ -1,0 +1,2 @@
+SELECT column1, column2 + 2, table_alias.column3 - 1
+ FROM t_table

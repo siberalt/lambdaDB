@@ -1,0 +1,6 @@
+SELECT
+ id,
+ field1,
+FROM
+ Table1 
+WHERE id = 1;
