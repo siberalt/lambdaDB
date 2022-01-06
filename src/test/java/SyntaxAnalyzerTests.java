@@ -1,15 +1,16 @@
 import org.junit.Before;
 import org.junit.Test;
-import sql_syntax_analyzer.analyzer.SqlSyntaxAnalyzer;
-import syntax_analyzer.analyzator.exceptions.UnexpectedLexemeException;
-import syntax_analyzer.compilator.DummyCompiler;
-import syntax_analyzer.input_adapters.FileInput;
-import syntax_analyzer.input_adapters.StringInput;
-import syntax_analyzer.lang_objects.Terminal;
-import syntax_analyzer.scanner.Scanner;
-import syntax_analyzer.scanner.exceptions.GeneralScannerException;
-import syntax_analyzer.scanner.exceptions.UnexpectedEndOfInputException;
-import syntax_analyzer.scanner.exceptions.UnknownLexemException;
+import sql.syntax.analyzer.SqlSyntaxAnalyzer;
+import syntax.analyzer.exceptions.UnexpectedLexemeException;
+import syntax.analyzer.exceptions.UnexpectedLexemesException;
+import syntax.compilator.DummyCompiler;
+import syntax.input_adapters.FileInput;
+import syntax.input_adapters.StringInput;
+import syntax.lang.letter.Terminal;
+import syntax.scanner.Scanner;
+import syntax.scanner.exceptions.GeneralScannerException;
+import syntax.scanner.exceptions.UnexpectedEndOfInputException;
+import syntax.scanner.exceptions.UnknownLexemException;
 
 import java.io.IOException;
 
@@ -52,12 +53,11 @@ public class SyntaxAnalyzerTests {
 
         try {
             analyzer.analyze();
-        } catch (UnexpectedLexemeException exception) {
+        } catch (UnexpectedLexemesException exception) {
             exceptionThrown = true;
             System.out.println(exception.getMessage());
-            Terminal actual = exception.getActual();
-            assertSame(2, actual.getLine());
-            assertSame(7, actual.getColumn());
+            assertSame(2, exception.getLine());
+            assertSame(7, exception.getColumn());
         }
 
         assertTrue("Exception has not been thrown", exceptionThrown);

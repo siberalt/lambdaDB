@@ -1,15 +1,15 @@
 import org.junit.Before;
 import org.junit.Test;
-import sql_syntax_analyzer.analyzer.Alphabet;
-import sql_syntax_analyzer.analyzer.SqlSyntaxAnalyzer;
-import syntax_analyzer.input_adapters.FileInput;
-import syntax_analyzer.input_adapters.InputInterface;
-import syntax_analyzer.input_adapters.StringInput;
-import syntax_analyzer.lang_objects.Terminal;
-import syntax_analyzer.scanner.Scanner;
-import syntax_analyzer.scanner.exceptions.GeneralScannerException;
-import syntax_analyzer.scanner.exceptions.UnexpectedEndOfInputException;
-import syntax_analyzer.scanner.exceptions.UnknownLexemException;
+import sql.syntax.analyzer.Alphabet;
+import sql.syntax.analyzer.SqlSyntaxAnalyzer;
+import syntax.input_adapters.FileInput;
+import syntax.input_adapters.InputInterface;
+import syntax.input_adapters.StringInput;
+import syntax.lang.letter.Terminal;
+import syntax.scanner.Scanner;
+import syntax.scanner.exceptions.GeneralScannerException;
+import syntax.scanner.exceptions.UnexpectedEndOfInputException;
+import syntax.scanner.exceptions.UnknownLexemException;
 
 import static org.junit.Assert.*;
 
@@ -88,7 +88,7 @@ public class ScannerTests {
             System.out.println(exception.getMessage());
             assertSame(1, exception.getLine());
             assertSame(1, exception.getPosition());
-            assertEquals("@", exception.getUnknownLexem());
+            assertEquals("@", exception.getUnknownLexeme());
         }
     }
 
@@ -100,7 +100,7 @@ public class ScannerTests {
             System.out.println(exception.getMessage());
             assertSame(6, exception.getLine());
             assertSame(14, exception.getPosition());
-            assertEquals("@", exception.getUnknownLexem());
+            assertEquals("@", exception.getUnknownLexeme());
         }
     }
 
@@ -115,7 +115,7 @@ public class ScannerTests {
             System.out.println(exception.getMessage());
             assertSame(2, exception.getLine());
             assertSame(5, exception.getPosition());
-            assertEquals("%", exception.getUnknownLexem());
+            assertEquals("%", exception.getUnknownLexeme());
         }
     }
 

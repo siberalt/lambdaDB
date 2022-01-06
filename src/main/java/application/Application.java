@@ -1,13 +1,13 @@
 package application;
 
-import sql_syntax_analyzer.analyzer.Alphabet;
-import sql_syntax_analyzer.analyzer.SqlSyntaxAnalyzer;
-import syntax_analyzer.input_adapters.FileInput;
-import syntax_analyzer.lang_objects.Terminal;
-import syntax_analyzer.scanner.Scanner;
-import syntax_analyzer.scanner.exceptions.GeneralScannerException;
-import syntax_analyzer.scanner.exceptions.UnexpectedEndOfInputException;
-import syntax_analyzer.scanner.exceptions.UnknownLexemException;
+import sql.syntax.analyzer.Alphabet;
+import sql.syntax.analyzer.SqlSyntaxAnalyzer;
+import syntax.input_adapters.FileInput;
+import syntax.lang.letter.Terminal;
+import syntax.scanner.Scanner;
+import syntax.scanner.exceptions.GeneralScannerException;
+import syntax.scanner.exceptions.UnexpectedEndOfInputException;
+import syntax.scanner.exceptions.UnknownLexemException;
 
 import java.io.IOException;
 import java.util.ArrayList;
