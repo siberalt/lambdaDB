@@ -55,10 +55,4 @@ public class Terminal extends Letter implements LetterInterface {
     public String toString() {
         return String.format("Terminal{view='%s', type=%s}", view, type.name());
     }
-
-    public LetterInterface setView(String view) {
-        this.view = view;
-
-        return this;
-    }
 }

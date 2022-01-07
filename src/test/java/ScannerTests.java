@@ -19,6 +19,8 @@ import java.util.*;
 public class ScannerTests {
     private Scanner scanner;
 
+    protected final String SCANNER_DATA_DIR = "C:\\projects\\lambdaDB\\src\\test\\resources\\scannerData\\";
+
     @Before
     public void init() {
         scanner = new Scanner();
@@ -53,7 +55,7 @@ public class ScannerTests {
             new StringInput(data),
             new Alphabet[]{
                 Alphabet.T_SELECT,
-                Alphabet.T_ASTERISK,
+                Alphabet.T_MULT,
                 Alphabet.T_FROM,
                 Alphabet.T_ID
             }
@@ -63,7 +65,7 @@ public class ScannerTests {
     @Test
     public void testComplexQuery() throws IOException, GeneralScannerException, UnknownLexemException, UnexpectedEndOfInputException {
         testQuery(
-            new FileInput("C:\\projects\\lambdaDB\\src\\test\\resources\\input.dat"),
+            new FileInput(SCANNER_DATA_DIR + "input.dat"),
             new Alphabet[]{
                 Alphabet.T_SELECT,
                 Alphabet.T_ID,
@@ -83,7 +85,7 @@ public class ScannerTests {
     @Test
     public void testInvalidStartLexeme() throws IOException, GeneralScannerException, UnexpectedEndOfInputException {
         try {
-            testQuery(new FileInput("C:\\projects\\lambdaDB\\src\\test\\resources\\input2.dat"), new Alphabet[]{});
+            testQuery(new FileInput(SCANNER_DATA_DIR + "input2.dat"), new Alphabet[]{});
         } catch (UnknownLexemException exception) {
             System.out.println(exception.getMessage());
             assertSame(1, exception.getLine());
@@ -95,7 +97,7 @@ public class ScannerTests {
     @Test
     public void testInvalidEndLexeme() throws IOException, GeneralScannerException, UnexpectedEndOfInputException {
         try {
-            testQuery(new FileInput("C:\\projects\\lambdaDB\\src\\test\\resources\\input1.dat"), new Alphabet[]{});
+            testQuery(new FileInput(SCANNER_DATA_DIR + "input1.dat"), new Alphabet[]{});
         } catch (UnknownLexemException exception) {
             System.out.println(exception.getMessage());
             assertSame(6, exception.getLine());
@@ -116,6 +118,18 @@ public class ScannerTests {
             assertSame(2, exception.getLine());
             assertSame(5, exception.getPosition());
             assertEquals("%", exception.getUnknownLexeme());
+        }
+    }
+
+    @Test
+    public void testInvalidLexemeInCreateQuery() throws IOException, GeneralScannerException, UnexpectedEndOfInputException {
+        try {
+            testQuery(new FileInput(SCANNER_DATA_DIR + "create1.dat"), new Alphabet[]{});
+        } catch (UnknownLexemException exception) {
+            System.out.println(exception.getMessage());
+            assertSame(5, exception.getLine());
+            assertSame(5, exception.getPosition());
+            assertEquals("^", exception.getUnknownLexeme());
         }
     }
 
@@ -147,9 +161,9 @@ public class ScannerTests {
         LinkedList<Terminal> actualTerminals = new LinkedList<>();
         List<Alphabet> expectedTerminals = Arrays.asList(
             Alphabet.T_SELECT,
-            Alphabet.T_ASTERISK,
+            Alphabet.T_MULT,
             Alphabet.T_FROM,
-            Alphabet.T_ASTERISK,
+            Alphabet.T_MULT,
             Alphabet.T_FROM
         );
 
@@ -195,7 +209,7 @@ public class ScannerTests {
             Alphabet.T_ID,
             Alphabet.T_ID,
             Alphabet.T_COMMA,
-            Alphabet.T_ASTERISK
+            Alphabet.T_MULT
         ));
     }
 

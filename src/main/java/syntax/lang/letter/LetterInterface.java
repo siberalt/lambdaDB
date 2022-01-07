@@ -5,4 +5,6 @@ public interface LetterInterface {
 	LetterType getType();
 	
 	Enum<? extends Enum<?>> getId();
+
+	String getView();
 }

@@ -1,0 +1,1 @@
+insert into schema.products (id, name, amount) values (1, "apple", 37 + "banana" * (5/3))

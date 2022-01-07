@@ -9,10 +9,10 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-public class PrefixRule extends AbstractRule implements RuleInterface {
+public class PrefixRuleSingle extends AbstractRule implements RuleInterface {
 	protected Map<Enum<? extends Enum<?>>[], Enum<? extends Enum<?>>> prefixes;
 	
-	public PrefixRule(Enum<? extends Enum<?>> ruleId, Map<Enum<? extends Enum<?>>[], Enum<? extends Enum<?>>> prefixes) {
+	public PrefixRuleSingle(Enum<? extends Enum<?>> ruleId, Map<Enum<? extends Enum<?>>[], Enum<? extends Enum<?>>> prefixes) {
 		this.prefixes = prefixes;
 		this.ruleId = ruleId;
 	}

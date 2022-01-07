@@ -3,7 +3,7 @@ package syntax.lang;
 import syntax.lang.letter.LetterInterface;
 import syntax.lang.letter.Terminal;
 
-public interface LangManagerInterface {
+public interface LetterManagerInterface {
 
 	LetterInterface generate(Enum<? extends Enum<?>> description);
 

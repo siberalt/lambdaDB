@@ -25,7 +25,7 @@ public class SyntaxAnalyzer {
 	
 	protected LinkedList<LetterInterface> lettersStack = null;
 	
-	protected LangManagerInterface langManager = null;
+	protected LetterManagerInterface langManager = null;
 
 	protected RuleManager ruleManager;
 	
@@ -48,7 +48,7 @@ public class SyntaxAnalyzer {
 		return this;
 	}
 
-	public SyntaxAnalyzer setLangManager(LangManagerInterface generator) {
+	public SyntaxAnalyzer setLangManager(LetterManagerInterface generator) {
 		langManager = generator;
 		
 		return this;

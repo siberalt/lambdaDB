@@ -1,0 +1,4 @@
+SELECT column1, column2 + 2, (column3 - column2) + "some string" as col4
+ FROM table2 t2
+ INNER JOIN table1 as t1 ON t1.id = t2.product_id
+ ORDER BY 2331

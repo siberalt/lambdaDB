@@ -1,0 +1,6 @@
+create table user(
+	name varchar(230),
+	surname varchar not null,
+	age int default 18,
+	id ^ primary key AUTO_INCREMENT 
+)

@@ -10,6 +10,11 @@ public class NotTerminal extends Letter implements LetterInterface {
         return LetterType.NOTERMINAL;
     }
 
+    @Override
+    public String getView() {
+        return this.view;
+    }
+
     public String toString() {
         return String.format("NotTerminal{type=%s}", type.name());
     }

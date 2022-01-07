@@ -2,7 +2,7 @@ package syntax.analyzer;
 
 import syntax.analyzer.exceptions.UndefinedRuleException;
 import syntax.analyzer.exceptions.UnexpectedLexemesException;
-import syntax.lang.LangManagerInterface;
+import syntax.lang.LetterManagerInterface;
 import syntax.lang.letter.LetterInterface;
 import syntax.lang.letter.Terminal;
 import syntax.scanner.Scanner;
@@ -21,7 +21,7 @@ public class RuleManager {
 
     protected TerminalScanner terminalScanner;
 
-    protected LangManagerInterface langManager;
+    protected LetterManagerInterface langManager;
 
     public RuleManager(Scanner scanner) {
         this.scanner = scanner;
@@ -33,7 +33,7 @@ public class RuleManager {
         return terminalScanner;
     }
 
-    public RuleManager setLangManager(LangManagerInterface langObjectGenerator) {
+    public RuleManager setLangManager(LetterManagerInterface langObjectGenerator) {
         this.langManager = langObjectGenerator;
 
         return this;
@@ -90,7 +90,7 @@ public class RuleManager {
             StringBuilder lexemeSequence = new StringBuilder();
 
             for (Enum<? extends Enum<?>> expected : list) {
-                lexemeSequence.append(langManager.generateTerminal(expected).getView());
+                lexemeSequence.append(langManager.generate(expected).getView());
             }
 
             lexemeSequences.add(lexemeSequence.toString());
@@ -102,6 +102,7 @@ public class RuleManager {
         for (Terminal actualTerminal : actualTerminals) {
             if(null != actualTerminal) {
                 lexemeSequence.append(actualTerminal.getView());
+                lexemeSequence.append(" ");
             }
         }
 
@@ -121,11 +122,15 @@ public class RuleManager {
         return rules.get(ruleId);
     }
 
-    public RuleInterface findRuleByPrefix(Map<Enum<? extends Enum<?>>[], Enum<? extends Enum<?>>> rulesMapping) throws UnexpectedEndOfInputException, UnknownLexemException, GeneralScannerException, IOException {
+    public RuleInterface findRuleByPrefix(Map<Enum<? extends Enum<?>>[], Enum<? extends Enum<?>>> rulesMapping) throws GeneralScannerException, UnknownLexemException, UnexpectedEndOfInputException, IOException {
+        return findRuleByPrefix(rulesMapping, true);
+    }
+
+    public RuleInterface findRuleByPrefix(Map<Enum<? extends Enum<?>>[], Enum<? extends Enum<?>>> rulesMapping, boolean throwException) throws UnexpectedEndOfInputException, UnknownLexemException, GeneralScannerException, IOException {
         int maxInd = -1;
         RuleInterface matchedRule = null;
 
-        LinkedList<Enum<? extends Enum<?>>> terminals = new LinkedList<>();
+        LinkedList<Terminal> terminals = new LinkedList<>();
 
         for (Map.Entry<Enum<? extends Enum<?>>[], Enum<? extends Enum<?>>> ruleEntry : rulesMapping.entrySet()) {
             int i = 0;
@@ -134,10 +139,10 @@ public class RuleManager {
             for (Enum<? extends Enum<?>> el : ruleEntry.getKey()) {
                 if (i > maxInd) {
                     maxInd = i;
-                    terminals.add(terminalScanner.scan().getId());
+                    terminals.add(terminalScanner.scan());
                 }
 
-                matched = el.equals(terminals.get(i));
+                matched = el.equals(terminals.get(i).getId());
 
                 if (!matched) {
                     break;
@@ -149,6 +154,16 @@ public class RuleManager {
             if (matched && (i - 1 == maxInd)) {
                 matchedRule = this.getRule(ruleEntry.getValue());
             }
+        }
+
+        if(null == matchedRule && throwException){
+            LinkedList<List<Enum<? extends Enum<?>>>> expectedLexemes = new LinkedList<>();
+
+            for (Enum<? extends Enum<?>> value : rulesMapping.values()) {
+                expectedLexemes.add(new LinkedList<>(List.of(value)));
+            }
+
+            throwUnexpectedLexemes(expectedLexemes, terminals);
         }
 
         return matchedRule;
