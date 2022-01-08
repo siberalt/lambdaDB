@@ -10,4 +10,9 @@ public class Operating extends Letter implements LetterInterface {
 	public LetterType getType() {
 		return LetterType.OPERATING;
 	}
+
+	@Override
+	public String toString() {
+		return String.format("Operating{view='%s', type=%s}", view, type.name());
+	}
 }

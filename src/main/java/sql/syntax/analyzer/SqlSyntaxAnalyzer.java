@@ -50,6 +50,7 @@ public class SqlSyntaxAnalyzer extends SyntaxAnalyzer {
             .add(Alphabet.T_AS, "AS")
             .add(Alphabet.T_KEY, "KEY")
             .add(Alphabet.T_AUTO_INCREMENT, "AUTO_INCREMENT")
+            .add(Alphabet.T_TYPE_TINY_INT, "TINYINT")
         ),
 
         //Punctuation marks
@@ -108,9 +109,9 @@ public class SqlSyntaxAnalyzer extends SyntaxAnalyzer {
                     Alphabet.NT_INSERT
                 );
 
-                if(!queries.contains(type)) {
+                if (!queries.contains(type)) {
                     notTerminal.setView("<" + String.join(" ", parts) + ">");
-                } else{
+                } else {
                     notTerminal.setView(String.join(" ", parts));
                 }
 
@@ -167,41 +168,46 @@ public class SqlSyntaxAnalyzer extends SyntaxAnalyzer {
                     .add(new Alphabet[]{Alphabet.T_CREATE}, Alphabet.NT_CREATE_TABLE)
             ),
 
-            // NT_INSERT -> insert into NT_TABLE_ID (NT_INSERT_COLUMNS
+            // NT_INSERT -> insert into O_INSERT NT_TABLE_ID O_INSERT_TABLE (NT_INSERT_COLUMNS
             new Rule(
                 Alphabet.NT_INSERT,
                 new Alphabet[]{
                     Alphabet.T_INSERT,
+                    Alphabet.O_INSERT,
                     Alphabet.NT_TABLE_ID,
+                    Alphabet.O_INSERT_TABLE,
                     Alphabet.T_LEFT_PARENTHESIS,
                     Alphabet.NT_INSERT_COLUMNS,
                 }
             ),
 
-            // NT_INSERT_COLUMNS -> NT_FIELD NT_INSERT_FIELD_LIST) NT_INSERT_VALUES_START
+            // NT_INSERT_COLUMNS -> NT_FIELD O_FIELD NT_INSERT_FIELD_LIST) NT_INSERT_VALUES_START
             new Rule(
                 Alphabet.NT_INSERT_COLUMNS,
                 new Alphabet[]{
                     Alphabet.NT_FIELD,
+                    Alphabet.O_FIELD,
                     Alphabet.NT_INSERT_FIELD_LIST,
                     Alphabet.T_RIGHT_PARENTHESIS,
                     Alphabet.NT_INSERT_VALUES_START
                 }
             ),
 
-            // NT_INSERT_COLUMNS_LIST -> ,NT_FIELD NT_INSERT_FIELD_LIST| e
+            // NT_INSERT_COLUMNS_LIST -> ,NT_FIELD O_FIELD NT_INSERT_FIELD_LIST| e
             new ListRule(
                 new Alphabet[]{
-                    Alphabet.NT_FIELD
+                    Alphabet.NT_FIELD,
+                    Alphabet.O_FIELD
                 },
                 Alphabet.NT_INSERT_FIELD_LIST
             ),
 
-            // NT_INSERT_VALUES_START -> values (NT_INSERT_VALUES
+            // NT_INSERT_VALUES_START -> values (O_INSERT_VALUES NT_INSERT_VALUES
             new Rule(Alphabet.NT_INSERT_VALUES_START,
                 new Alphabet[]{
                     Alphabet.T_VALUES,
                     Alphabet.T_LEFT_PARENTHESIS,
+                    Alphabet.O_INSERT_VALUES,
                     Alphabet.NT_INSERT_VALUES
                 }
             ),
@@ -225,13 +231,14 @@ public class SqlSyntaxAnalyzer extends SyntaxAnalyzer {
             /////////////////////////////////////////////////////////////////////////
 
             // ---------------------------- NT_CREATE_TABLE ----------------------------
-            // NT_CREATE_TABLE -> create table <id> (NT_CREATE_TABLE_FIELDS
+            // NT_CREATE_TABLE -> create table <id> O_CREATE_TABLE (NT_CREATE_TABLE_FIELDS
             new Rule(
                 Alphabet.NT_CREATE_TABLE,
                 new Alphabet[]{
                     Alphabet.T_CREATE,
                     Alphabet.T_TABLE,
                     Alphabet.T_ID,
+                    Alphabet.O_CREATE_TABLE,
                     Alphabet.T_LEFT_PARENTHESIS,
                     Alphabet.NT_CREATE_TABLE_FIELDS,
                 }
@@ -255,39 +262,71 @@ public class SqlSyntaxAnalyzer extends SyntaxAnalyzer {
                 Alphabet.NT_CREATE_TABLE_FIELD_LIST
             ),
 
-            // NT_CREATE_TABLE_FIELD -> <id> NT_CREATE_TABLE_FIELD_TYPE NT_CREATE_TABLE_FIELD_CONFIG
+            // NT_CREATE_TABLE_FIELD -> <id> O_CREATE_TABLE_FIELD NT_CREATE_TABLE_FIELD_TYPE NT_CREATE_TABLE_FIELD_CONFIG
             new Rule(
                 Alphabet.NT_CREATE_TABLE_FIELD,
                 new Alphabet[]{
                     Alphabet.T_ID,
+                    Alphabet.O_CREATE_TABLE_FIELD,
                     Alphabet.NT_CREATE_TABLE_FIELD_TYPE,
                     Alphabet.NT_CREATE_TABLE_FIELD_CONFIG,
                 }
             ),
 
-            // NT_CREATE_TABLE_FIELD_TYPE -> int | varchar | varchar(<int>)
-            new OrRule(
+            // NT_CREATE_TABLE_FIELD_TYPE -> int O_CREATE_TABLE_FIELD_TYPE| varchar O_CREATE_TABLE_FIELD_TYPE | varchar O_CREATE_TABLE_FIELD_TYPE (<int> O_CREATE_TABLE_FIELD_TYPE_SIZE)
+            new PrefixRuleMultiple(
                 Alphabet.NT_CREATE_TABLE_FIELD_TYPE,
-                new Alphabet[]{
-                    Alphabet.T_TYPE_INT
-                },
-                new Alphabet[]{
-                    Alphabet.T_TYPE_VARCHAR
-                },
-                new Alphabet[]{
-                    Alphabet.T_TYPE_VARCHAR,
-                    Alphabet.T_LEFT_PARENTHESIS,
-                    Alphabet.T_CONST_INT,
-                    Alphabet.T_RIGHT_PARENTHESIS,
-                }
+                new MapWrapper<Enum<? extends Enum<?>>[],Enum<? extends Enum<?>>[]>()
+                    .add(
+                        new Alphabet[]{
+                            Alphabet.T_TYPE_INT
+                        },
+                        new Alphabet[]{
+                            Alphabet.T_TYPE_INT,
+                            Alphabet.O_CREATE_TABLE_FIELD_TYPE
+                        }
+                    )
+                    .add(
+                        new Alphabet[]{
+                            Alphabet.T_TYPE_TINY_INT
+                        },
+                        new Alphabet[]{
+                            Alphabet.T_TYPE_TINY_INT,
+                            Alphabet.O_CREATE_TABLE_FIELD_TYPE
+                        }
+                    )
+                    .add(
+                        new Alphabet[]{
+                            Alphabet.T_TYPE_VARCHAR
+                        },
+                        new Alphabet[]{
+                            Alphabet.T_TYPE_VARCHAR,
+                            Alphabet.O_CREATE_TABLE_FIELD_TYPE
+                        }
+                    )
+                    .add(
+                        new Alphabet[]{
+                            Alphabet.T_TYPE_VARCHAR,
+                            Alphabet.T_LEFT_PARENTHESIS,
+                        },
+                        new Alphabet[]{
+                            Alphabet.T_TYPE_VARCHAR,
+                            Alphabet.O_CREATE_TABLE_FIELD_TYPE,
+                            Alphabet.T_LEFT_PARENTHESIS,
+                            Alphabet.T_CONST_INT,
+                            Alphabet.O_CREATE_TABLE_FIELD_TYPE_SIZE,
+                            Alphabet.T_RIGHT_PARENTHESIS,
+                        }
+                    )
+
             ),
 
-            // NT_CREATE_TABLE_FIELD_CONFIG -> not null NT_CREATE_TABLE_FIELD_CONFIG |
-            //                                 default <string> NT_CREATE_TABLE_FIELD_CONFIG |
-            //                                 default <int> NT_CREATE_TABLE_FIELD_CONFIG|
-            //                                 default null NT_CREATE_TABLE_FIELD_CONFIG|
-            //                                 auto_increment NT_CREATE_TABLE_FIELD_CONFIG|
-            //                                 primary key NT_CREATE_TABLE_FIELD_CONFIG| e
+            // NT_CREATE_TABLE_FIELD_CONFIG -> not null O_CREATE_TABLE_NOT_NULL NT_CREATE_TABLE_FIELD_CONFIG |
+            //                                 default <string> O_CREATE_TABLE_DEFAULT_VALUE NT_CREATE_TABLE_FIELD_CONFIG |
+            //                                 default <int> O_CREATE_TABLE_DEFAULT_VALUE NT_CREATE_TABLE_FIELD_CONFIG|
+            //                                 default null O_CREATE_TABLE_DEFAULT_VALUE NT_CREATE_TABLE_FIELD_CONFIG|
+            //                                 auto_increment O_CREATE_TABLE_AUTO_INCREMENT NT_CREATE_TABLE_FIELD_CONFIG|
+            //                                 primary key O_CREATE_TABLE_PRIMARY_KEY NT_CREATE_TABLE_FIELD_CONFIG| e
             new FallbackPrefixRuleMultiple(
                 Alphabet.NT_CREATE_TABLE_FIELD_CONFIG,
                 null,
@@ -300,6 +339,7 @@ public class SqlSyntaxAnalyzer extends SyntaxAnalyzer {
                         new Alphabet[]{
                             Alphabet.T_NOT,
                             Alphabet.T_NULL,
+                            Alphabet.O_CREATE_TABLE_NOT_NULL,
                             Alphabet.NT_CREATE_TABLE_FIELD_CONFIG
                         }
                     )
@@ -311,17 +351,7 @@ public class SqlSyntaxAnalyzer extends SyntaxAnalyzer {
                         new Alphabet[]{
                             Alphabet.T_DEFAULT,
                             Alphabet.T_CONST_STRING,
-                            Alphabet.NT_CREATE_TABLE_FIELD_CONFIG
-                        }
-                    )
-                    .add(
-                        new Alphabet[]{
-                            Alphabet.T_DEFAULT,
-                            Alphabet.T_CONST_STRING
-                        },
-                        new Alphabet[]{
-                            Alphabet.T_DEFAULT,
-                            Alphabet.T_CONST_STRING,
+                            Alphabet.O_CREATE_TABLE_DEFAULT_VALUE,
                             Alphabet.NT_CREATE_TABLE_FIELD_CONFIG
                         }
                     )
@@ -333,6 +363,7 @@ public class SqlSyntaxAnalyzer extends SyntaxAnalyzer {
                         new Alphabet[]{
                             Alphabet.T_DEFAULT,
                             Alphabet.T_CONST_INT,
+                            Alphabet.O_CREATE_TABLE_DEFAULT_VALUE,
                             Alphabet.NT_CREATE_TABLE_FIELD_CONFIG
                         }
                     )
@@ -344,14 +375,17 @@ public class SqlSyntaxAnalyzer extends SyntaxAnalyzer {
                         new Alphabet[]{
                             Alphabet.T_DEFAULT,
                             Alphabet.T_NULL,
+                            Alphabet.O_CREATE_TABLE_DEFAULT_VALUE,
                             Alphabet.NT_CREATE_TABLE_FIELD_CONFIG
                         }
-                    ).add(
+                    )
+                    .add(
                         new Alphabet[]{
                             Alphabet.T_AUTO_INCREMENT
                         },
                         new Alphabet[]{
                             Alphabet.T_AUTO_INCREMENT,
+                            Alphabet.O_CREATE_TABLE_AUTO_INCREMENT,
                             Alphabet.NT_CREATE_TABLE_FIELD_CONFIG
                         }
                     )
@@ -363,31 +397,40 @@ public class SqlSyntaxAnalyzer extends SyntaxAnalyzer {
                         new Alphabet[]{
                             Alphabet.T_PRIMARY,
                             Alphabet.T_KEY,
+                            Alphabet.O_CREATE_TABLE_PRIMARY_KEY,
                             Alphabet.NT_CREATE_TABLE_FIELD_CONFIG
                         }
                     )
             ),
 
             // ---------------------------- NT_SELECT ----------------------------
-            // NT_SELECT -> select NT_SELECT_COLUMNS | select distinct NT_SELECT_COLUMNS
+            // NT_SELECT -> select O_SELECT NT_SELECT_COLUMNS | select O_SELECT distinct O_SELECT_DISTINCT NT_SELECT_COLUMNS
             new PrefixRuleMultiple(
                 Alphabet.NT_SELECT,
                 new MapWrapper<Enum<? extends Enum<?>>[], Enum<? extends Enum<?>>[]>()
-                    .add(new Alphabet[]{
+                    .add(
+                        new Alphabet[]{
                             Alphabet.T_SELECT,
                         },
                         new Alphabet[]{
                             Alphabet.T_SELECT,
+                            Alphabet.O_SELECT,
                             Alphabet.NT_SELECT_COLUMNS
-                        })
-                    .add(new Alphabet[]{
-                        Alphabet.T_SELECT,
-                        Alphabet.T_DISTINCT
-                    }, new Alphabet[]{
-                        Alphabet.T_SELECT,
-                        Alphabet.T_DISTINCT,
-                        Alphabet.NT_SELECT_COLUMNS
-                    })
+                        }
+                    )
+                    .add(
+                        new Alphabet[]{
+                            Alphabet.T_SELECT,
+                            Alphabet.T_DISTINCT
+                        },
+                        new Alphabet[]{
+                            Alphabet.T_SELECT,
+                            Alphabet.O_SELECT,
+                            Alphabet.T_DISTINCT,
+                            Alphabet.O_SELECT_DISTINCT,
+                            Alphabet.NT_SELECT_COLUMNS
+                        }
+                    )
             ),
 
             // NT_SELECT_COLUMNS -> NT_SELECT_COLUMNS_LIST_ITEM NT_SELECT_COLUMNS_LIST NT_SELECT_FROM
@@ -440,11 +483,12 @@ public class SqlSyntaxAnalyzer extends SyntaxAnalyzer {
                 }
             ),
 
-            // NT_EXPRESSION1 -> = NT_EXPRESSION_EQ NT_EXPRESSION1 | e
+            // NT_EXPRESSION1 -> = NT_EXPRESSION_EQ O_CAST_TYPES NT_EXPRESSION1 | e
             new ListRule(
                 Alphabet.T_EQUAL,
                 new Alphabet[]{
-                    Alphabet.NT_EXPRESSION_EQ
+                    Alphabet.NT_EXPRESSION_EQ,
+                    Alphabet.O_CAST_TYPES
                 },
                 Alphabet.NT_EXPRESSION1
             ),
@@ -458,11 +502,12 @@ public class SqlSyntaxAnalyzer extends SyntaxAnalyzer {
                 }
             ),
 
-            // NT_EXPRESSION_EQ1 -> or NT_EXPRESSION_OR NT_EXPRESSION1 | e
+            // NT_EXPRESSION_EQ1 -> or NT_EXPRESSION_OR O_CAST_TYPES NT_EXPRESSION1 | e
             new ListRule(
                 Alphabet.T_OR,
                 new Alphabet[]{
-                    Alphabet.NT_EXPRESSION_OR
+                    Alphabet.NT_EXPRESSION_OR,
+                    Alphabet.O_CAST_TYPES
                 },
                 Alphabet.NT_EXPRESSION_EQ1
             ),
@@ -476,11 +521,12 @@ public class SqlSyntaxAnalyzer extends SyntaxAnalyzer {
                 }
             ),
 
-            // NT_EXPRESSION_OR1 -> and NT_EXPRESSION_AND NT_EXPRESSION_OR1| e
+            // NT_EXPRESSION_OR1 -> and NT_EXPRESSION_AND O_CAST_TYPES NT_EXPRESSION_OR1| e
             new ListRule(
                 Alphabet.T_AND,
                 new Alphabet[]{
-                    Alphabet.NT_EXPRESSION_AND
+                    Alphabet.NT_EXPRESSION_AND,
+                    Alphabet.O_CAST_TYPES
                 },
                 Alphabet.NT_EXPRESSION_OR1
             ),
@@ -494,14 +540,15 @@ public class SqlSyntaxAnalyzer extends SyntaxAnalyzer {
                 }
             ),
 
-            // NT_EXPRESSION_AND1 -> + NT_EXPRESSION_SUBADD NT_EXPRESSION_AND1 | - NT_EXPRESSION_SUBADD NT_EXPRESSION_AND1| e
+            // NT_EXPRESSION_AND1 -> + NT_EXPRESSION_SUBADD O_CAST_TYPES NT_EXPRESSION_AND1 | - NT_EXPRESSION_SUBADD O_CAST_TYPES NT_EXPRESSION_AND1| e
             new ListRule(
                 new Alphabet[]{
                     Alphabet.T_ADD,
                     Alphabet.T_SUB
                 },
                 new Alphabet[]{
-                    Alphabet.NT_EXPRESSION_SUBADD
+                    Alphabet.NT_EXPRESSION_SUBADD,
+                    Alphabet.O_CAST_TYPES
                 },
                 Alphabet.NT_EXPRESSION_AND1
             ),
@@ -515,14 +562,15 @@ public class SqlSyntaxAnalyzer extends SyntaxAnalyzer {
                 }
             ),
 
-            // NT_EXPRESSION_SUBADD1 -> * NT_EXPRESSION_MULTDIV NT_EXPRESSION_SUBADD1 | / NT_EXPRESSION_MULTDIV NT_EXPRESSION_SUBADD1 | e
+            // NT_EXPRESSION_SUBADD1 -> * NT_EXPRESSION_MULTDIV O_CAST_TYPES NT_EXPRESSION_SUBADD1 | / NT_EXPRESSION_MULTDIV O_CAST_TYPES NT_EXPRESSION_SUBADD1 | e
             new ListRule(
                 new Alphabet[]{
                     Alphabet.T_MULT,
                     Alphabet.T_DIV
                 },
                 new Alphabet[]{
-                    Alphabet.NT_EXPRESSION_MULTDIV
+                    Alphabet.NT_EXPRESSION_MULTDIV,
+                    Alphabet.O_CAST_TYPES
                 },
                 Alphabet.NT_EXPRESSION_SUBADD1
             ),
@@ -543,7 +591,7 @@ public class SqlSyntaxAnalyzer extends SyntaxAnalyzer {
                 }
             ),
 
-            // NT_ELEMENT -> <int> | <string> | NT_FIELD | (NT_EXPRESSION)
+            // NT_ELEMENT -> <int> O_CONST | <string> O_CONST | NT_FIELD | (NT_EXPRESSION)
             new FallbackPrefixRuleMultiple(
                 Alphabet.NT_ELEMENT,
                 new Alphabet[]{
@@ -552,11 +600,17 @@ public class SqlSyntaxAnalyzer extends SyntaxAnalyzer {
                 new MapWrapper<Enum<? extends Enum<?>>[], Enum<? extends Enum<?>>[]>()
                     .add(
                         new Alphabet[]{Alphabet.T_CONST_STRING},
-                        new Alphabet[]{Alphabet.T_CONST_STRING}
+                        new Alphabet[]{
+                            Alphabet.T_CONST_STRING,
+                            Alphabet.O_CONST
+                        }
                     )
                     .add(
                         new Alphabet[]{Alphabet.T_CONST_INT},
-                        new Alphabet[]{Alphabet.T_CONST_INT}
+                        new Alphabet[]{
+                            Alphabet.T_CONST_INT,
+                            Alphabet.O_CONST
+                        }
                     )
                     .add(
                         new Alphabet[]{Alphabet.T_LEFT_PARENTHESIS},
@@ -569,20 +623,22 @@ public class SqlSyntaxAnalyzer extends SyntaxAnalyzer {
 
             ),
 
-        // NT_FIELD -> NT_FIELD_PART NT_FIELD_PARTS
-        new Rule(
-            Alphabet.NT_FIELD,
-            new Alphabet[]{
-                Alphabet.NT_FIELD_PART,
-                Alphabet.NT_FIELD_PARTS,
-            }
-        ),
+            // NT_FIELD -> NT_FIELD_PART O_FIELD NT_FIELD_PARTS
+            new Rule(
+                Alphabet.NT_FIELD,
+                new Alphabet[]{
+                    Alphabet.NT_FIELD_PART,
+                    Alphabet.O_FIELD,
+                    Alphabet.NT_FIELD_PARTS,
+                }
+            ),
 
-            // NT_FIELD_PARTS -> .NT_FIELD_PART NT_FIELD_PARTS| e
+            // NT_FIELD_PARTS -> .NT_FIELD_PART O_FIELD NT_FIELD_PARTS| e
             new ListRule(
                 Alphabet.T_DOT,
                 new Alphabet[]{
                     Alphabet.NT_FIELD_PART,
+                    Alphabet.O_FIELD
                 },
                 Alphabet.NT_FIELD_PARTS
             ),
@@ -622,13 +678,25 @@ public class SqlSyntaxAnalyzer extends SyntaxAnalyzer {
                 Alphabet.NT_SELECT_TABLES_LIST
             ),
 
-            // NT_SELECT_TABLE_ID -> NT_TABLE_ID NT_SELECT_TABLE_ALIAS_PART
-            new Rule(
+            // NT_SELECT_TABLE_ID -> NT_TABLE_ID NT_SELECT_TABLE_ALIAS_PART| (NT_SELECT) NT_SELECT_TABLE_ALIAS_PART
+            new FallbackPrefixRuleMultiple(
                 Alphabet.NT_SELECT_TABLE_ID,
                 new Alphabet[]{
                     Alphabet.NT_TABLE_ID,
                     Alphabet.NT_SELECT_TABLE_ALIAS_PART
-                }
+                },
+                new MapWrapper<Enum<? extends Enum<?>>[], Enum<? extends Enum<?>>[]>()
+                    .add(
+                        new Alphabet[]{
+                            Alphabet.T_LEFT_PARENTHESIS
+                        },
+                        new Alphabet[]{
+                            Alphabet.T_LEFT_PARENTHESIS,
+                            Alphabet.NT_SELECT,
+                            Alphabet.T_RIGHT_PARENTHESIS,
+                            Alphabet.NT_SELECT_TABLE_ALIAS_PART
+                        }
+                    )
             ),
 
             // NT_TABLE_ID -> NT_TABLE_ID_PART NT_TABLE_ID_PARTS
@@ -670,16 +738,16 @@ public class SqlSyntaxAnalyzer extends SyntaxAnalyzer {
             ),
 
             // NT_SELECT_JOIN ->
-            //			inner join NT_SELECT_JOIN_ITEM NT_SELECT_JOIN |
-            //			left join NT_SELECT_JOIN_ITEM NT_SELECT_JOIN |
-            //			cross join NT_SELECT_JOIN_ITEM NT_SELECT_JOIN |
-            //			right join NT_SELECT_JOIN_ITEM NT_SELECT_JOIN |
-            //			outer join NT_SELECT_JOIN_ITEM NT_SELECT_JOIN |
-            //			NT_SELECT_GROUP
+            //			inner O_SELECT_JOIN_TYPE join NT_SELECT_JOIN_ITEM NT_SELECT_JOIN |
+            //			left O_SELECT_JOIN_TYPE join NT_SELECT_JOIN_ITEM NT_SELECT_JOIN |
+            //			cross O_SELECT_JOIN_TYPE join NT_SELECT_JOIN_ITEM NT_SELECT_JOIN |
+            //			right O_SELECT_JOIN_TYPE join NT_SELECT_JOIN_ITEM NT_SELECT_JOIN |
+            //			outer O_SELECT_JOIN_TYPE join NT_SELECT_JOIN_ITEM NT_SELECT_JOIN |
+            //			NT_SELECT_WHERE
             new FallbackPrefixRuleMultiple(
                 Alphabet.NT_SELECT_JOIN,
                 new Alphabet[]{
-                    Alphabet.NT_SELECT_GROUP
+                    Alphabet.NT_SELECT_WHERE
                 },
                 new MapWrapper<Enum<? extends Enum<?>>[], Enum<? extends Enum<?>>[]>()
                     .add(
@@ -689,6 +757,7 @@ public class SqlSyntaxAnalyzer extends SyntaxAnalyzer {
                         },
                         new Alphabet[]{
                             Alphabet.T_INNER,
+                            Alphabet.O_SELECT_JOIN_TYPE,
                             Alphabet.T_JOIN,
                             Alphabet.NT_SELECT_JOIN_ITEM,
                             Alphabet.NT_SELECT_JOIN
@@ -701,6 +770,7 @@ public class SqlSyntaxAnalyzer extends SyntaxAnalyzer {
                         },
                         new Alphabet[]{
                             Alphabet.T_LEFT,
+                            Alphabet.O_SELECT_JOIN_TYPE,
                             Alphabet.T_JOIN,
                             Alphabet.NT_SELECT_JOIN_ITEM,
                             Alphabet.NT_SELECT_JOIN
@@ -709,10 +779,12 @@ public class SqlSyntaxAnalyzer extends SyntaxAnalyzer {
                     .add(
                         new Alphabet[]{
                             Alphabet.T_CROSS,
+                            Alphabet.O_SELECT_JOIN_TYPE,
                             Alphabet.T_JOIN,
                         },
                         new Alphabet[]{
                             Alphabet.T_CROSS,
+                            Alphabet.O_SELECT_JOIN_TYPE,
                             Alphabet.T_JOIN,
                             Alphabet.NT_SELECT_JOIN_ITEM,
                             Alphabet.NT_SELECT_JOIN
@@ -721,11 +793,13 @@ public class SqlSyntaxAnalyzer extends SyntaxAnalyzer {
                     .add(
                         new Alphabet[]{
                             Alphabet.T_RIGHT,
+                            Alphabet.O_SELECT_JOIN_TYPE,
                             Alphabet.T_JOIN,
                         },
                         new Alphabet[]{
                             Alphabet.T_RIGHT,
                             Alphabet.T_JOIN,
+                            Alphabet.O_SELECT_JOIN_TYPE,
                             Alphabet.NT_SELECT_JOIN_ITEM,
                             Alphabet.NT_SELECT_JOIN
                         }
@@ -733,6 +807,7 @@ public class SqlSyntaxAnalyzer extends SyntaxAnalyzer {
                     .add(
                         new Alphabet[]{
                             Alphabet.T_OUTER,
+                            Alphabet.O_SELECT_JOIN_TYPE,
                             Alphabet.T_JOIN,
                         },
                         new Alphabet[]{
@@ -752,6 +827,24 @@ public class SqlSyntaxAnalyzer extends SyntaxAnalyzer {
                     Alphabet.T_ON,
                     Alphabet.NT_EXPRESSION
                 }
+            ),
+
+            // NT_SELECT_WHERE -> WHERE NT_EXPRESSION| NT_SELECT_GROUP
+            new FallbackPrefixRuleMultiple(
+                Alphabet.NT_SELECT_WHERE,
+                new Alphabet[]{
+                    Alphabet.NT_SELECT_GROUP
+                },
+                new MapWrapper<Enum<? extends Enum<?>>[], Enum<? extends Enum<?>>[]>()
+                    .add(
+                        new Alphabet[]{
+                            Alphabet.T_WHERE
+                        },
+                        new Alphabet[]{
+                            Alphabet.T_WHERE,
+                            Alphabet.NT_EXPRESSION
+                        }
+                    )
             ),
 
             // NT_SELECT_GROUP -> group by NT_FIELD NT_SELECT_GROUP_LIST| NT_SELECT_ORDER
