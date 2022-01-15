@@ -1,4 +1,4 @@
-package syntax.input_adapters;
+package syntax.scanner.input;
 
 import java.io.BufferedReader;
 import java.io.IOException;

@@ -1,11 +1,11 @@
 import org.junit.Before;
 import org.junit.Test;
-import sql.syntax.analyzer.Alphabet;
-import sql.syntax.analyzer.SqlSyntaxAnalyzer;
+import lambdaDB.syntax.analyzer.Alphabet;
+import lambdaDB.syntax.analyzer.SqlSyntaxAnalyzer;
 import syntax.analyzer.exceptions.UnexpectedLexemesException;
 import syntax.compilator.DummyCompiler;
-import syntax.input_adapters.FileInput;
-import syntax.input_adapters.StringInput;
+import syntax.scanner.input.FileInput;
+import syntax.scanner.input.StringInput;
 import syntax.scanner.Scanner;
 import syntax.scanner.exceptions.GeneralScannerException;
 import syntax.scanner.exceptions.UnexpectedEndOfInputException;

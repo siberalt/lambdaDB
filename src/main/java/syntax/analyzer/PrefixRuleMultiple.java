@@ -27,7 +27,7 @@ public class PrefixRuleMultiple extends AbstractRule implements RuleInterface {
 
     @Override
     public List<Enum<? extends Enum<?>>> generate(TerminalScanner scanner, RuleManager ruleManager) throws UnexpectedEndOfInputException, UnknownLexemException, GeneralScannerException, IOException {
-        int maxInd = -1;
+        int maxInd = -1, maxMatch = -1;
         Enum<? extends Enum<?>>[] matchedSequence = null;
         LinkedList<Terminal> terminals = new LinkedList<>();
 
@@ -50,7 +50,8 @@ public class PrefixRuleMultiple extends AbstractRule implements RuleInterface {
                 i++;
             }
 
-            if (matched && (i >= maxInd)) {
+            if (matched && (i >= maxMatch)) {
+                maxMatch = i;
                 matchedSequence = ruleEntry.getValue();
             }
         }

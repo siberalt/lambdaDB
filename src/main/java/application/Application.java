@@ -1,8 +1,8 @@
 package application;
 
-import sql.syntax.analyzer.Alphabet;
-import sql.syntax.analyzer.SqlSyntaxAnalyzer;
-import syntax.input_adapters.FileInput;
+import lambdaDB.syntax.analyzer.Alphabet;
+import lambdaDB.syntax.analyzer.SqlSyntaxAnalyzer;
+import syntax.scanner.input.FileInput;
 import syntax.lang.letter.Terminal;
 import syntax.scanner.Scanner;
 import syntax.scanner.exceptions.GeneralScannerException;

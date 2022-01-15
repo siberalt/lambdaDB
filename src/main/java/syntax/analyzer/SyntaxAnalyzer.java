@@ -1,6 +1,6 @@
 package syntax.analyzer;
 
-import sql.syntax.analyzer.Alphabet;
+import lambdaDB.syntax.analyzer.Alphabet;
 import syntax.analyzer.exceptions.InvalidConfigException;
 import syntax.analyzer.exceptions.UnexpectedLexemeException;
 import syntax.compilator.CompilerInterface;
@@ -28,6 +28,8 @@ public class SyntaxAnalyzer {
 	protected LetterManagerInterface langManager = null;
 
 	protected RuleManager ruleManager;
+
+	protected Enum<? extends Enum<?>> startNotTerminal;
 	
 	public SyntaxAnalyzer(Scanner scanner, CompilerInterface compiler) {
 		this.scanner = scanner;
@@ -60,7 +62,8 @@ public class SyntaxAnalyzer {
 		return this;
 	}
 	
-	public SyntaxAnalyzer setStartNotTerminal(Alphabet notTerminal) {
+	public SyntaxAnalyzer setStartNotTerminal(Enum<? extends Enum<?>> notTerminal) {
+		startNotTerminal = notTerminal;
 		lettersStack = new LinkedList<>();
 		lettersStack.add(langManager.generate(notTerminal));
 		

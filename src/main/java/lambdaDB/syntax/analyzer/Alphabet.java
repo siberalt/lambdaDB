@@ -1,4 +1,4 @@
-package sql.syntax.analyzer;
+package lambdaDB.syntax.analyzer;
 
 public enum Alphabet {
 	T_SELECT,
@@ -113,7 +113,7 @@ public enum Alphabet {
 	O_FIELD,
 	O_SELECT_JOIN_TYPE,
 	O_INSERT_VALUES,
-	O_CREATE_TABLE,
+    O_CREATE_TABLE_BEGIN,
 	O_CREATE_TABLE_FIELD,
 	O_CREATE_TABLE_FIELD_TYPE,
 	O_CREATE_TABLE_FIELD_TYPE_SIZE,
@@ -122,5 +122,8 @@ public enum Alphabet {
 	O_CREATE_TABLE_AUTO_INCREMENT,
 	O_CREATE_TABLE_PRIMARY_KEY,
 	O_SELECT,
-	O_SELECT_DISTINCT, O_CAST_TYPES, O_CONST,
+	O_SELECT_DISTINCT,
+	O_CAST_TYPES,
+	O_CONST,
+	O_CREATE_TABLE_END,
 }

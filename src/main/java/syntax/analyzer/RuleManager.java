@@ -90,7 +90,11 @@ public class RuleManager {
             StringBuilder lexemeSequence = new StringBuilder();
 
             for (Enum<? extends Enum<?>> expected : list) {
-                lexemeSequence.append(langManager.generate(expected).getView());
+                String view = langManager.generate(expected).getView();
+
+                if( null != view) {
+                    lexemeSequence.append(view);
+                }
             }
 
             lexemeSequences.add(lexemeSequence.toString());

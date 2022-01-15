@@ -1,6 +1,6 @@
 package syntax.scanner;
 
-import syntax.input_adapters.InputInterface;
+import syntax.scanner.input.InputInterface;
 import syntax.lang.letter.Terminal;
 import syntax.scanner.exceptions.GeneralScannerException;
 import syntax.scanner.exceptions.UnexpectedEndOfInputException;

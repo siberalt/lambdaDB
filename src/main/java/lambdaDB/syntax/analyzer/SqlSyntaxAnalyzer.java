@@ -1,10 +1,10 @@
-package sql.syntax.analyzer;
+package lambdaDB.syntax.analyzer;
 
 
 import syntax.analyzer.*;
 import syntax.compilator.CompilerInterface;
 import global.helpers.MapWrapper;
-import syntax.input_adapters.InputInterface;
+import syntax.scanner.input.InputInterface;
 import syntax.lang.LetterManager;
 import syntax.lang.letter.NotTerminal;
 import syntax.scanner.Scanner;
@@ -231,26 +231,27 @@ public class SqlSyntaxAnalyzer extends SyntaxAnalyzer {
             /////////////////////////////////////////////////////////////////////////
 
             // ---------------------------- NT_CREATE_TABLE ----------------------------
-            // NT_CREATE_TABLE -> create table <id> O_CREATE_TABLE (NT_CREATE_TABLE_FIELDS
+            // NT_CREATE_TABLE -> create table <id> O_CREATE_TABLE_BEGIN (NT_CREATE_TABLE_FIELDS
             new Rule(
                 Alphabet.NT_CREATE_TABLE,
                 new Alphabet[]{
                     Alphabet.T_CREATE,
                     Alphabet.T_TABLE,
                     Alphabet.T_ID,
-                    Alphabet.O_CREATE_TABLE,
+                    Alphabet.O_CREATE_TABLE_BEGIN,
                     Alphabet.T_LEFT_PARENTHESIS,
                     Alphabet.NT_CREATE_TABLE_FIELDS,
                 }
             ),
 
-            // NT_CREATE_TABLE_FIELDS -> NT_CREATE_TABLE_FIELD NT_CREATE_TABLE_FIELD_LIST)
+            // NT_CREATE_TABLE_FIELDS -> NT_CREATE_TABLE_FIELD NT_CREATE_TABLE_FIELD_LIST) O_CREATE_TABLE_END
             new Rule(
                 Alphabet.NT_CREATE_TABLE_FIELDS,
                 new Alphabet[]{
                     Alphabet.NT_CREATE_TABLE_FIELD,
                     Alphabet.NT_CREATE_TABLE_FIELD_LIST,
                     Alphabet.T_RIGHT_PARENTHESIS,
+                    Alphabet.O_CREATE_TABLE_END
                 }
             ),
 
@@ -276,7 +277,7 @@ public class SqlSyntaxAnalyzer extends SyntaxAnalyzer {
             // NT_CREATE_TABLE_FIELD_TYPE -> int O_CREATE_TABLE_FIELD_TYPE| varchar O_CREATE_TABLE_FIELD_TYPE | varchar O_CREATE_TABLE_FIELD_TYPE (<int> O_CREATE_TABLE_FIELD_TYPE_SIZE)
             new PrefixRuleMultiple(
                 Alphabet.NT_CREATE_TABLE_FIELD_TYPE,
-                new MapWrapper<Enum<? extends Enum<?>>[],Enum<? extends Enum<?>>[]>()
+                new MapWrapper<Enum<? extends Enum<?>>[], Enum<? extends Enum<?>>[]>()
                     .add(
                         new Alphabet[]{
                             Alphabet.T_TYPE_INT

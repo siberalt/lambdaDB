@@ -1,10 +1,10 @@
 import org.junit.Before;
 import org.junit.Test;
-import sql.syntax.analyzer.Alphabet;
-import sql.syntax.analyzer.SqlSyntaxAnalyzer;
-import syntax.input_adapters.FileInput;
-import syntax.input_adapters.InputInterface;
-import syntax.input_adapters.StringInput;
+import lambdaDB.syntax.analyzer.Alphabet;
+import lambdaDB.syntax.analyzer.SqlSyntaxAnalyzer;
+import syntax.scanner.input.FileInput;
+import syntax.scanner.input.InputInterface;
+import syntax.scanner.input.StringInput;
 import syntax.lang.letter.Terminal;
 import syntax.scanner.Scanner;
 import syntax.scanner.exceptions.GeneralScannerException;
