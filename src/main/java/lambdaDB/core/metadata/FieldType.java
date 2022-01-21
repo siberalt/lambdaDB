@@ -1,4 +1,4 @@
-package lambdaDB.syntax.compiler.create.table;
+package lambdaDB.core.metadata;
 
 public enum FieldType {
     VARCHAR,

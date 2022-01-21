@@ -244,14 +244,14 @@ public class SqlSyntaxAnalyzer extends SyntaxAnalyzer {
                 }
             ),
 
-            // NT_CREATE_TABLE_FIELDS -> NT_CREATE_TABLE_FIELD NT_CREATE_TABLE_FIELD_LIST) O_CREATE_TABLE_END
+            // NT_CREATE_TABLE_FIELDS -> NT_CREATE_TABLE_FIELD NT_CREATE_TABLE_FIELD_LIST O_CREATE_TABLE_END)
             new Rule(
                 Alphabet.NT_CREATE_TABLE_FIELDS,
                 new Alphabet[]{
                     Alphabet.NT_CREATE_TABLE_FIELD,
                     Alphabet.NT_CREATE_TABLE_FIELD_LIST,
+                    Alphabet.O_CREATE_TABLE_END,
                     Alphabet.T_RIGHT_PARENTHESIS,
-                    Alphabet.O_CREATE_TABLE_END
                 }
             ),
 

@@ -4,6 +4,7 @@ import org.junit.Before;
 import org.junit.Test;
 import syntax.compilator.CompilerInterface;
 import syntax.compilator.input.InputInterface;
+import syntax.compilator.output.ByteOutput;
 import syntax.compilator.output.CharOutput;
 import syntax.compilator.output.ConsoleOutput;
 import syntax.compilator.output.OutputInterface;
@@ -55,7 +56,7 @@ public class CompilerTests {
         scanner.setInput(new FileInput(COMPILER_DATA_DIR + "create.dat"));
         analyzer.analyze();
 
-        CharOutput output = new CharOutput();
+        ByteOutput output = new ByteOutput();
         CommandWriterInterface machineViewWriter = new MachineViewWriter(output);
 
         compiler.compile(machineViewWriter);

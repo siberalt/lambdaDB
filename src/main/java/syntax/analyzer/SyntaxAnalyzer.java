@@ -95,28 +95,28 @@ public class SyntaxAnalyzer {
 		Terminal curTerminal = scanner.scan();
 		
 		while(null != curTerminal) {
-			LetterInterface topObject = lettersStack.getLast();
+			LetterInterface topLetter = lettersStack.getLast();
 			
-			if(LetterType.TERMINAL == topObject.getType()) {
-				if(curTerminal.getId() == topObject.getId()) {
+			if(LetterType.TERMINAL == topLetter.getType()) {
+				if(curTerminal.getId() == topLetter.getId()) {
 					compiler.processTerminal(curTerminal);
 					lettersStack.removeLast();
 					curTerminal = scanner.scan();
 				}else {
-					throw new UnexpectedLexemeException((Terminal) topObject, curTerminal);
+					throw new UnexpectedLexemeException((Terminal) topLetter, curTerminal);
 				}
 				
-			}else if(LetterType.NOTERMINAL == topObject.getType()) {
+			}else if(LetterType.NOTERMINAL == topLetter.getType()) {
 				ruleManager.getTerminalScanner().setFirstScanTerminal(curTerminal);
-				List<LetterInterface> ruleLangObjects = ruleManager.generateRule(topObject.getId());
+				List<LetterInterface> ruleLangObjects = ruleManager.generateRule(topLetter.getId());
 				lettersStack.removeLast();
 				
 				if(null != ruleLangObjects) {
 					lettersStack.addAll(ruleLangObjects);
 				}
 				
-			}else if(LetterType.OPERATING == topObject.getType()) {
-				compiler.processOperating((Operating) topObject);
+			}else if(LetterType.OPERATING == topLetter.getType()) {
+				compiler.processOperating((Operating) topLetter);
 				lettersStack.removeLast();
 			}
 		}

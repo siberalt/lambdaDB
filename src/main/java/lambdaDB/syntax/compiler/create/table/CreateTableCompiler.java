@@ -1,5 +1,6 @@
 package lambdaDB.syntax.compiler.create.table;
 
+import lambdaDB.core.metadata.FieldType;
 import lambdaDB.query.executer.Commands;
 import lambdaDB.syntax.analyzer.Alphabet;
 import syntax.compilator.CompilerInterface;
