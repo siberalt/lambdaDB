@@ -27,7 +27,7 @@ public class ByteOutput implements OutputInterface {
 
     @Override
     public void write(int i) throws IOException {
-        outputStream.write(ByteHelper.intToByteArray(i));
+        outputStream.write(ByteHelper.intToBytes(i));
     }
 
     @Override

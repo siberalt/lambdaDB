@@ -1,13 +1,19 @@
 package lambdaDB.core.storage;
 
+import java.io.IOException;
+
 public interface StorageInterface {
-    int getId();
+    void read(byte[] buf, int amount) throws IOException;
 
-    int readInt();
+    void write(byte[] buf, int amount) throws IOException;
 
-    String readString();
+    long size() throws IOException;
 
+    void position(long pos) throws IOException;
 
+    long position() throws IOException;
 
+    long available();
 
+    void close() throws IOException;
 }
